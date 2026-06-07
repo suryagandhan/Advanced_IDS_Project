@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Detection Report | SOC Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body soc-theme">
+    <nav class="navbar soc-navbar">
+        <div class="logo">
+            <span class="shield">🛡️</span> AI-IDS | Security Operations Center
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Monitoring</a>
+        </div>
+    </nav>
+    
+    <div class="result-container">
+        <div class="glass-panel result-card {{ 'alert-border' if attacks_found > 0 else 'safe-border' }}">
+            <header class="result-header">
+                <h2 class="{{ 'text-danger' if attacks_found > 0 else 'text-success' }}">
+                    {{ '🚨 Batch Analysis: Attacks Detected' if attacks_found > 0 else '✅ Batch Analysis: No Attacks Found' }}
+                </h2>
+                <a href="/dashboard" class="btn secondary-btn small-btn">← Back to Monitoring</a>
+            </header>
+            
+            <div class="result-content-grid">
+                <div class="left-panel-wrapper" style="display: flex; flex-direction: column; gap: 1.5rem; justify-content: flex-start; height: 100%;">
+                    
+                    <!-- Overall Status Card -->
+                    <div class="glass-panel text-center" style="padding: 1.5rem 2rem 2rem 2rem; border-width: 2px; border-color: {{ 'var(--danger)' if attacks_found > 0 else 'var(--success)' }}; background: {{ 'rgba(239, 68, 68, 0.05)' if attacks_found > 0 else 'rgba(16, 185, 129, 0.05)' }};">
+                        <div class="icon-large" style="margin-bottom: 0; line-height: 1;">
+                            {{ '⚠️' if attacks_found > 0 else '🟢' }}
+                        </div>
+                        {% if attacks_found > 0 %}
+                            {% set attack_percentage = ((attacks_found / total_flows) * 100) | round(1) if total_flows > 0 else 0 %}
+                            {% set severity = "CRITICAL" if attack_percentage >= 50 else ("HIGH" if attack_percentage >= 20 else ("MEDIUM" if attack_percentage >= 5 else "LOW")) %}
+                            <h2 class="mt-1 text-danger" style="letter-spacing: 1px; margin-bottom: 0;">Threat Level: {{ severity }}</h2>
+                        {% else %}
+                            <h2 class="mt-1 text-success" style="letter-spacing: 1px; margin-bottom: 0;">System Secure</h2>
+                        {% endif %}
+                    </div>
+
+                    <!-- Stats Card -->
+                    <div class="glass-panel" style="padding: 1.5rem;">
+                        <h3 style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 1rem; font-size: 1.1rem;">Detection Summary</h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                            <span class="text-muted">Total Flows Analyzed</span>
+                            <span class="font-mono" style="font-weight: 800; font-size: 1.1rem;">{{ total_flows }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span class="text-muted">Malicious Flows Found</span>
+                            <span class="font-mono {{ 'text-danger' if attacks_found > 0 else 'text-success' }}" style="font-weight: 800; font-size: 1.1rem;">{{ attacks_found }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Traffic Heat/Percentage Card -->
+                    {% if attacks_found > 0 %}
+                    <div class="glass-panel" style="padding: 1.5rem;">
+                        <div class="confidence-info" style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                            <span class="text-muted" style="font-weight: 600;">Malicious Traffic Profile</span>
+                            <span class="text-danger font-mono" style="font-weight: 800;">{{ attack_percentage }}%</span>
+                        </div>
+                        <div class="confidence-bar" style="height: 10px; background: rgba(0,0,0,0.4); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="confidence-fill danger-fill" style="width: {{ attack_percentage }}%; height: 100%; transition: width 1.5s ease-in-out;"></div>
+                        </div>
+                        <p class="mt-1" style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">{{ attacks_found }} out of {{ total_flows }} network flows exhibit attack signatures.</p>
+                    </div>
+                    {% else %}
+                    <div class="glass-panel" style="padding: 1.5rem; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
+                        <p style="color: var(--success); font-weight: 600; text-align: center; font-size: 0.95rem; line-height: 1.5;">The injected payload capture contains clean, verified background traffic. Zero malicious signatures triggered the detection engine.</p>
+                    </div>
+                    {% endif %}
+
+                </div>
+                
+                <div class="network-details-box glass-panel w-100">
+                    <h3>Threat Intelligence</h3>
+                    {% if attacks_found > 0 %}
+                    <div class="details-grid mt-1">
+                        {% for type, count in attack_details.items() %}
+                        <div class="detail-item" style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); border-radius: 4px; margin-bottom: 5px;">
+                            <span class="text-danger" style="font-weight: 600;">{{ type }}</span> 
+                            <span>{{ count }} occurrences</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <details class="mt-1 custom-details" open>
+                        <summary style="cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px;">Infected Internal Hosts (Victims)</summary>
+                        <div class="details-grid mt-1" style="max-height: 150px; overflow-y: auto;">
+                            {% if internal_victims %}
+                                {% for ip in internal_victims %}
+                                <div class="detail-item font-mono text-warning" style="padding: 5px 10px; border-left: 2px solid var(--warning);">{{ ip }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="detail-item text-muted" style="padding: 5px 10px;">None identified</div>
+                            {% endif %}
+                        </div>
+                    </details>
+                    
+                    <details class="mt-1 custom-details" open>
+                        <summary style="cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px;">Suspicious External IPs (Attackers / C2)</summary>
+                        <div class="details-grid mt-1" style="max-height: 150px; overflow-y: auto;">
+                            {% if sorted_attackers %}
+                                {% for ip, count in sorted_attackers %}
+                                <div class="detail-item font-mono text-danger" style="padding: 5px 10px; border-left: 2px solid var(--danger); display: flex; justify-content: space-between;">
+                                    <span>{% if loop.first %}⚠️ [Primary C2] {% endif %}{{ ip }}</span>
+                                    <span>{{ count }} flows</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="detail-item text-muted" style="padding: 5px 10px;">None identified</div>
+                            {% endif %}
+                        </div>
+                    </details>
+                    
+                    <details class="mt-1 custom-details">
+                        <summary style="cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px;">Validated Benign/Background Traffic</summary>
+                        <div class="details-grid mt-1" style="max-height: 100px; overflow-y: auto;">
+                            {% if benign_ips %}
+                                {% for info in benign_ips %}
+                                <div class="detail-item font-mono text-success" style="padding: 5px 10px; border-left: 2px solid var(--success);">{{ info }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="detail-item text-muted" style="padding: 5px 10px;">None isolated in analysis</div>
+                            {% endif %}
+                        </div>
+                    </details>
+                    
+                    <details class="mt-1 custom-details" open>
+                        <summary style="cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px;">Top Targeted Ports</summary>
+                        <div class="details-grid mt-1">
+                            {% if top_ports %}
+                                {% for port, count in top_ports.items() %}
+                                <div class="detail-item" style="padding: 5px 10px; display: flex; justify-content: space-between;">
+                                    <span class="font-mono">Port {{ port }}</span>
+                                    <span>{{ count }} flows</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="detail-item text-muted" style="padding: 5px 10px;">N/A</div>
+                            {% endif %}
+                        </div>
+                    </details>
+                    {% else %}
+                    <p class="text-success mt-1">System intelligence indicates zero threat actors within this batch.</p>
+                    <div class="status-indicator online mt-1">
+                        <span class="dot"></span> All systems clear
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if suspicious_files and suspicious_files|length > 0 %}
+            <div class="glass-panel mt-2" style="border-color: var(--danger); background: rgba(239, 68, 68, 0.05); padding: 1.5rem;">
+                <h3 class="text-danger" style="border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding-bottom: 10px; margin-bottom: 1rem;">
+                    ☠️ DPI: Malware Payloads Extracted
+                </h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                    Deep Packet Inspection identified transferring executables matching malicious signatures inside the PCAP payloads. File hashes have been computed for EDR blacklisting.
+                </p>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                                <th style="padding: 10px;">Filename</th>
+                                <th style="padding: 10px;">Attacker IP (Source)</th>
+                                <th style="padding: 10px;">Victim IP (Target)</th>
+                                <th style="padding: 10px;">SHA-256 Hash</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in suspicious_files %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 10px; color: var(--danger); font-weight: 600;">{{ file.filename }}</td>
+                                <td class="font-mono text-warning" style="padding: 10px;">{{ file.attacker_ip }}</td>
+                                <td class="font-mono text-warning" style="padding: 10px;">{{ file.victim_ip }}</td>
+                                <td class="font-mono text-muted" style="padding: 10px; font-size: 0.8rem; word-break: break-all;">{{ file.hash }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if attacks_found > 0 %}
+            <div class="mitigation-box mt-2" style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">🧠 SOC Analysis Summary</h3>
+                <p class="mt-1 text-danger" style="font-size: 1.1em; line-height: 1.5; font-weight: 600;">
+                    {{ conclusion }}
+                </p>
+                <div class="mitigation-status status-alert mt-2">
+                    Status: Threat Mitigated via Dynamic Rules
+                </div>
+                <ul class="action-list">
+                    <li>
+                        <span class="action-check text-danger">✔</span> Dropped {{ attacks_found }} malicious packets successfully.
+                    </li>
+                    <li>
+                        <span class="action-check text-danger">✔</span> Added {{ sorted_attackers | length }} external IPs to the blocklist.
+                    </li>
+                    <li>
+                        <span class="action-check text-danger">✔</span> Alerted SOC administrators regarding {{ internal_victims | length }} compromised internal hosts.
+                    </li>
+                    {% if suspicious_files and suspicious_files|length > 0 %}
+                    <li>
+                        <span class="action-check text-danger">✔</span> Extracted and logged {{ suspicious_files | length }} SHA-256 hashes for immediate network-wide quarantine.
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</body>
+</html>

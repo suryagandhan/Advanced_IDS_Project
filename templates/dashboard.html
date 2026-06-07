@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Dashboard | 5G Network IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Load custom fonts including Fira Code for terminal -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Chart.js for dashboard charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body soc-theme">
+    <nav class="navbar soc-navbar">
+        <div class="logo">
+            <span class="shield">🛡️</span> AI-IDS | Security Operations Center
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard" class="active">Monitoring</a>
+        </div>
+    </nav>
+    
+    <div class="dashboard-wrapper">
+        <!-- Top Statistics Row -->
+        <div class="top-stats-row">
+            <div class="stat-card">
+                <h4>Total Traffic Analyzed</h4>
+                <p class="stat-value" id="stat-total">0</p>
+            </div>
+            <div class="stat-card danger-card">
+                <h4>Attacks Detected</h4>
+                <p class="stat-value text-danger" id="stat-attacks">0</p>
+            </div>
+            <div class="stat-card info-card">
+                <h4>System Status</h4>
+                <div class="status-indicator online">
+                    <span class="dot"></span> Active & Monitoring
+                </div>
+            </div>
+            <div class="stat-card chart-card">
+                <canvas id="attackTypeChart" width="200" height="60"></canvas>
+            </div>
+        </div>
+        
+        <div class="glass-panel system-info mb-2 text-center">
+            <p class="sys-msg" style="margin-top:0; border-left:none; padding-left:0;">
+                <span style="color:var(--accent);">Environment Meta:</span> This system simulates real-time network traffic based on CICIDS2017 dataset features and is designed for deployment in 5G network environments.
+            </p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="soc-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-manual')">🔍 Manual Simulation</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-batch')">📂 Batch Analysis</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-logs')">💻 Real-time Logs</button>
+        </div>
+
+        <!-- Tab contents wrapper -->
+        <div class="tab-content-container">
+            
+            <!-- TAB 1: Manual Simulation -->
+            <div id="tab-manual" class="tab-content default-tab">
+                <div class="custom-layout">
+                    <aside class="sidebar soc-sidebar">
+                        <div class="quick-fill-panel glass-panel">
+                            <h3>Network Traffic Generator</h3>
+                            <button class="btn accent-btn w-100" onclick="fillForm('normal')">Trigger Normal Traffic</button>
+                            <button class="btn danger-btn w-100" onclick="fillForm('botnet')">Trigger Botnet Attack</button>
+                            <button class="btn warning-btn w-100" onclick="fillForm('ddos')">Trigger DDoS Attack</button>
+                            <button class="btn alert-btn w-100" onclick="fillForm('portscan')">Trigger PortScan</button>
+                        </div>
+                    </aside>
+                    <main class="dashboard-main">
+                        <div class="glass-panel form-panel">
+                            <div class="panel-header mb-1">
+                                <h2>Manual Traffic Inspection</h2>
+                            </div>
+                            <form action="/detect" method="POST" class="traffic-form" id="detectionForm">
+                                <div class="form-grid compact-grid">
+                                    <div class="input-group">
+                                        <label>Source IP</label>
+                                        <input type="text" name="source_ip" id="source_ip" value="192.168.1.100" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Protocol</label>
+                                        <select name="protocol" id="protocol">
+                                            <option value="6">TCP (6)</option>
+                                            <option value="17">UDP (17)</option>
+                                            <option value="0">HOPOPT (0)</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Source Port</label>
+                                        <input type="number" name="src_port" id="src_port" value="54321" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Dest Port</label>
+                                        <input type="number" name="dst_port" id="dst_port" value="443" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Flow Duration</label>
+                                        <input type="number" name="flow_duration" id="flow_duration" value="1500" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Flow Bytes/s</label>
+                                        <input type="number" step="0.01" name="flow_bytes" id="flow_bytes" value="2500.5" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Fwd Pkts</label>
+                                        <input type="number" name="total_fwd_packets" id="total_fwd_packets" value="5" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Bwd Pkts</label>
+                                        <input type="number" name="total_bwd_packets" id="total_bwd_packets" value="3" required>
+                                    </div>
+                                    <div class="input-group full-width">
+                                        <label>Packet Length Mean</label>
+                                        <input type="number" step="0.01" name="packet_length_mean" id="packet_length_mean" value="65.4" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions mt-1">
+                                    <button type="submit" class="btn primary-btn submit-btn w-100" id="analyzeBtn">
+                                        <span class="btn-text">Extract Features & Analyze</span>
+                                        <div class="loader" id="btnLoader" style="display:none;"></div>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <!-- TAB 2: Batch Analysis -->
+            <div id="tab-batch" class="tab-content" style="display: none;">
+                <div class="glass-panel batch-panel-full p-3 text-center">
+                    <div class="icon-large mt-1">📂</div>
+                    <h2 class="mt-1">Batch Traffic (CSV/PCAP) Analysis</h2>
+                    <p class="text-muted mt-1 mb-2">Upload historical data or packet captures to analyze millions of flows sequentially through the Deep Learning pipeline.</p>
+                    
+                    <form id="batchUploadForm" action="/upload_batch" method="POST" enctype="multipart/form-data" class="upload-container" onsubmit="document.getElementById('batchBtn').innerText = 'Processing (This may take a moment)...'; document.getElementById('batchBtn').style.opacity = '0.7';">
+                        <input type="file" name="file" id="batchFile" accept=".csv,.pcap" required class="file-input-large">
+                        <br>
+                        <button type="submit" id="batchBtn" class="btn primary-btn mt-2 batch-btn-large">Upload & Analyze Data</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 3: Real-time Logs -->
+            <div id="tab-logs" class="tab-content" style="display: none;">
+                <div class="terminal-panel glass-panel mt-1">
+                    <div class="terminal-header">
+                        <span>Real-time System Logs</span>
+                        <div class="terminal-controls">
+                            <button class="btn terminal-btn small-btn" id="startMonitorBtn" onclick="toggleMonitoring()">▶ Start Monitoring</button>
+                        </div>
+                    </div>
+                    <div class="terminal-body log-large" id="logConsole">
+                        <!-- Logs will be injected here via JS -->
+                        <div class="log-line text-muted">System idle. Press 'Start Monitoring' to commence live feed.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End Tab Content Container -->
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

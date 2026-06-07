@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning IDS for 5G Networks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="shield">🛡️</span> AI-IDS
+        </div>
+        <div class="nav-links">
+            <a href="/" class="active">Home</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+    
+    <main class="hero">
+        <div class="hero-content">
+            <h1>Advanced Deep Learning-Driven Intrusion Detection System</h1>
+            <p>A next-generation framework designed for detecting botnet attacks in 5G-enabled networks using the CICIDS2017 dataset.</p>
+            
+            <div class="hero-buttons">
+                <a href="/dashboard" class="btn primary-btn">Launch Detection Engine 🚀</a>
+                <a href="#architecture" class="btn secondary-btn">View Architecture</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="glow-orb"></div>
+            <img src="{{ url_for('static', filename='dashboard-mock.svg') }}" onerror="this.style.display='none'" alt="Dashboard Mockup" class="floating-img">
+        </div>
+    </main>
+    
+    <section id="architecture" class="features-section">
+        <h2>System Capabilities</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🔍</div>
+                <h3>Traffic Analysis</h3>
+                <p>Analyze 8 crucial network flow features in real-time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🧠</div>
+                <h3>Deep Learning Core</h3>
+                <p>Powered by robust Dense Neural Networks for multi-class classification.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3>Active Mitigation</h3>
+                <p>Simulates IP blocking and traffic quarantine automatically upon attack detection.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Final Year Engineering Project &copy; 2026</p>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

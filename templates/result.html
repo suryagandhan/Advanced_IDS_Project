@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Report | SOC Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body soc-theme">
+    <nav class="navbar soc-navbar">
+        <div class="logo">
+            <span class="shield">🛡️</span> AI-IDS | Security Operations Center
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Monitoring</a>
+        </div>
+    </nav>
+    
+    <div class="result-container">
+        <div class="glass-panel result-card {{ 'alert-border' if result.is_attack else 'safe-border' }}">
+            <header class="result-header">
+                <h2 class="{{ 'text-danger' if result.is_attack else 'text-success' }}">
+                    {{ '🚨 Intrusion Detection Alert' if result.is_attack else '✅ Normal Traffic Report' }}
+                </h2>
+                <a href="/dashboard" class="btn secondary-btn small-btn">← Back to Monitoring</a>
+            </header>
+            
+            <div class="result-content-grid">
+                <div class="prediction-box {{ 'attack-detected' if result.is_attack else 'normal-traffic' }} w-100">
+                    <div class="icon-large">
+                        {{ '⚠️' if result.is_attack else '🟢' }}
+                    </div>
+                    <h3>Classification: <span>{{ result.prediction }}</span></h3>
+                    <div class="confidence-bar-container">
+                        <div class="confidence-info">
+                            <span>Confidence Score</span>
+                            <span>{{ result.confidence }}%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill {{ 'danger-fill' if result.is_attack else 'safe-fill' }}" style="width: {{ result.confidence }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="network-details-box glass-panel w-100">
+                    <h3>Network Details</h3>
+                    <div class="details-grid compact-grid mt-1">
+                        <div class="detail-item"><span>Source IP:</span> {{ source_ip }}</div>
+                        <div class="detail-item"><span>Protocol:</span> {{ 'TCP' if features['Protocol'] == 6 else ('UDP' if features['Protocol'] == 17 else 'HOPOPT') }}</div>
+                        <div class="detail-item"><span>Source Port:</span> {{ features['Source Port'] | int }}</div>
+                        <div class="detail-item"><span>Dest Port:</span> {{ features['Destination Port'] | int }}</div>
+                    </div>
+                    
+                    <details class="mt-1 custom-details">
+                        <summary>View All Captured Features</summary>
+                        <div class="details-grid mt-1">
+                            {% for key, value in features.items() %}
+                            <div class="detail-item"><span>{{ key }}:</span> {{ value }}</div>
+                            {% endfor %}
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="mitigation-box mt-2">
+                <h3>Automated Mitigation Response</h3>
+                <div class="mitigation-status {{ 'status-alert' if result.is_attack else 'status-safe' }}">
+                    Status: {{ mitigation.status }}
+                </div>
+                
+                <ul class="action-list">
+                    {% for action in mitigation.actions_taken %}
+                    <li>
+                        <span class="action-check {{ 'text-danger' if result.is_attack else 'text-success' }}">✔</span> {{ action }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p class="timestamp mt-1 font-mono">Event Logged: [{{ mitigation.timestamp }}]</p>
+            </div>
+            
+        </div>
+    </div>
+</body>
+</html>
