@@ -35,6 +35,7 @@ This project is associated with the following published Indian Patent Applicatio
 ✔ Deep Learning-based MLP classifier  
 ✔ Live packet monitoring using Scapy  
 ✔ CSV and PCAP file analysis  
+✔ **Deep Packet Inspection (DPI)** for malicious payload and executable extraction  
 ✔ Flask-based SOC Dashboard  
 ✔ Automated mitigation simulation  
 ✔ REST API support  
@@ -63,8 +64,8 @@ The proposed framework consists of three major layers:
 ### 1. Telemetry Capture Layer
 * Live Packet Capture
 * Network Flow Extraction
-* PCAP Processing
-* Feature Engineering
+* PCAP Processing & Feature Engineering
+* **Deep Packet Inspection (DPI)** payload search and executable hash extraction
 
 ### 2. Deep Learning Decision Layer
 * Data Preprocessing
@@ -229,6 +230,18 @@ Dense Layer (32 ReLU)
           ↓
 Output Layer (Softmax)
 ```
+
+---
+
+# 🔍 Deep Packet Inspection (DPI) & Malware Extraction
+
+In addition to the Deep Learning classification of flow parameters, the framework implements a low-level **Deep Packet Inspection (DPI)** engine within [pcap_parser.py](file:///e:/Final%20year%20project/Advanced_IDS_Project/pcap_parser.py). 
+
+When analyzing a packet capture (`.pcap`) file, the DPI engine scans the raw payload of active network connections to:
+1. **Identify Malicious Executables:** Scans payloads for HTTP GET requests targeting binaries (`.exe`, `.dll`, `.bat`, `.ps1`, `.sh`, `.bin`) or HTTP response headers containing `Content-Disposition` filenames.
+2. **Detect Magic Bytes:** Inspects the raw packet binary for Windows executable signatures (the `MZ` signature and the `This program cannot be run in DOS mode` string).
+3. **Compute Cryptographic File Hashes:** Strips HTTP headers to isolate the raw binary payload, computes its **SHA-256 hash**, and maps it to the attacker IP and victim IP.
+4. **EDR/SIEM Blacklisting:** Automatically exports these file hashes to the dashboard for Endpoint Detection & Response (EDR) blacklisting or SIEM threat correlation.
 
 ---
 
