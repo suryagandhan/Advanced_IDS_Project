@@ -1,0 +1,4 @@
+Place your screenshots here for the README.md to display them:
+1. Save a screenshot of the main dashboard landing page as 'dashboard_main.jpg' (or .png).
+2. Save a screenshot of the detection analysis page as 'simulation_results.jpg' (or .png).
+3. Save a screenshot of your system architecture diagram as 'system_architecture.png'.
