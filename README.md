@@ -1,110 +1,187 @@
 # Advanced Deep Learning–Driven Intrusion Detection and Mitigation Framework for Botnet Attacks in 5G-Enabled Networks
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![TensorFlow](https://img.shields.io/badge/Deep_Learning-TensorFlow%2FKeras-orange)
-![Flask](https://img.shields.io/badge/Web-Flask-green)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python Badge">
+  <img src="https://img.shields.io/badge/TensorFlow-2.x-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow Badge">
+  <img src="https://img.shields.io/badge/Flask-2.x-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask Badge">
+  <img src="https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" alt="scikit-learn Badge">
+  <img src="https://img.shields.io/badge/Scapy-Packet_Sniffer-red?style=for-the-badge" alt="Scapy Badge">
+</p>
 
-A complete final year engineering project featuring an AI-driven Intrusion Detection System (IDS) for 5G-enabled networks. This framework analyzes network traffic features, classifies them using a Deep Learning architecture (trained on the CICIDS2017 dataset), and simulates automated mitigation responses.
+---
 
-## Project Overview
+## 📖 Project Abstract & Introduction
+With the massive scalability, ultra-low latency, and device density introduced by **5G network infrastructures**, the network attack surface has expanded exponentially. Traditional signature-based Intrusion Detection Systems (IDS) fail against zero-day exploits, fast-flux DNS configurations, and stealthy distributed botnets. 
 
-With the rapid expansion of 5G networks, addressing security vulnerabilities has become critical. This project implements a Deep Learning–driven IDS capable of detecting and classifying malicious network flows in real time. It identifies multiple attack types including Botnets, DDoS, and Port Scans, while maintaining high accuracy with nominal classification latency.
+This project implements an **Advanced Deep Learning–Driven Intrusion Detection and Mitigation Framework** designed to identify, trace, and mitigate network threats (specifically Botnets, Denial of Service (DDoS), and Port Scans) in real-time. Integrating a **Keras/TensorFlow Multi-Layer Perceptron (MLP)** model, a **Scapy-powered live network hook**, and an **interactive glassmorphic SOC (Security Operations Center) Web Dashboard**, this framework offers an end-to-end sandbox representing production-grade AI-driven cybersecurity.
 
-### Importance of IDS in 5G Networks
-5G networks introduce massive device density, ultra-low latency, and enhanced bandwidth. These advancements Unfortunately expand the attack surface, making traditional signature-based IDSs ineffective. A Deep Learning approach can identify complex, non-linear patterns characteristic of modern zero-day exploits and coordinated botnet attacks.
+---
 
-### The CICIDS2017 Dataset
-The model is trained on network flow statistics inspired by the CICIDS2017 dataset. Features evaluated include:
-- Flow Duration
-- Total Forward / Backward Packets
-- Flow Byte Rate
-- Packet Length Mean
-- Protocol and Ports
+## ⚡ Core Features
 
-*Note: For demonstration, a synthetic `CICIDS2017_sample.csv` generator is included to emulate this dataset locally.*
+*   🔍 **Scapy-Hooked Live Packet Sniffing**: Dynamically captures raw network socket traffic, compiles packets into bidirectional network flows, and analyzes flow metrics in real time.
+*   🧠 **Deep Learning Intrusion Classification**: Employs a Sequential Deep Neural Network (Dense layers + Dropout regularizations) trained on flow characteristics matching the industry-standard **CICIDS2017** benchmark dataset.
+*   🖥️ **Premium Glassmorphic SOC Terminal**: An interactive HTML5/CSS3/JS Web Interface incorporating:
+    *   Dynamic statistical trackers (Total Analyzed, Attacks Stopped).
+    *   Live system logging terminal stream showing backend threat classification logs.
+    *   Toggles to start/stop the hardware-level live network interfaces.
+*   🛡️ **Autonomous Threat Mitigation Engine**: Simulates immediate firewall blocks, network isolation quarantine, and detailed digital forensic incident report generation for compromised victim hosts and remote Command & Control (C2) servers.
+*   📦 **Dual-Mode File Analysis**: Supports uploading network packet captures (`.pcap`) and tabular flow sheets (`.csv`) for bulk scanning, automated attacker-victim mapping, and machine-learning threat intelligence correlation.
 
-## System Architecture
+---
 
-```text
-[Network Traffic Entry] -> [Data Preprocessing Module] -> [Feature Extraction]
-                                                                |
-                                                                v
-[Web Dashboard Viewer] <- [Mitigation Engine] <- [Deep Learning IDS Model]
+## 🏗️ System Architecture & Workflow
+
+The framework operates via three primary layers: **Telemetry Capture**, **Deep Learning Decision Core**, and **Active Orchestration**.
+
+```mermaid
+graph TD
+    A["5G Network Interface Telemetry"] -->|Raw Packets| B("Scapy Live Sniffer Engine")
+    A -->|Bulk Files (.pcap / .csv)| C("Batch File Ingestion")
+    B -->|Bilateral Flow Compilation| D["Data Preprocessor & Feature Scaler"]
+    C -->|Extract Flow Features| D
+    D -->|Standardized Tensor (8 Features)| E{"Deep Learning Neural Net"}
+    E -->|Normal / BENIGN| F("Verify Connection Integrity")
+    E -->|Threat Flagged| G("Active Mitigation Engine")
+    G -->|Dynamic IP Blocks & Firewall Rules| H["Host Network Isolation / Log Actions"]
+    G -->|Threat Alert Payload| I("Flask Glassmorphic SOC Web Dashboard")
+    F -->|Telemetry Stats| I
+    
+    style A fill:#1a1a2e,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style E fill:#0f172a,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style G fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
+    style I fill:#052e16,stroke:#10b981,stroke-width:2px,color:#fff
 ```
 
-1. **Traffic Input**: Simulated real-time 5G network telemetry input.
-2. **Preprocessing**: Null handling, standardization, and normalization.
-3. **Deep Learning Model**: A Multi-Layer Perceptron (Sequential Dense Layers + Dropout) with Softmax activation for multi-class classification.
-4. **Mitigation Engine**: Simulates dropping packets, rate limiting, or quarantining malicious IP addresses.
-5. **Web Interface**: A Flask-powered modern UI with glassmorphism aesthetics for monitoring and manual simulation.
+---
 
-## Directory Structure
+## 📊 Feature Extraction & Network Metrics
 
-```
+The model evaluates network sessions across **8 primary traffic dimensions** to differentiate standard user behavior from malicious activities:
+
+| Feature Dimension | Extraction Target | Technical Importance in 5G Security |
+| :--- | :--- | :--- |
+| **Flow Duration** | Session duration in microseconds | Detects high-speed PortScans vs. slow-polling Botnet beacons |
+| **Total Fwd Packets** | Packets sent client $\rightarrow$ server | Captures bulk payload transfers or initial connection handshakes |
+| **Total Bwd Packets** | Packets sent server $\rightarrow$ client | Measures response ratios; essential for identifying command responses |
+| **Flow Bytes/s** | Aggregated payload throughput rate | Identifies volumetric resource exhaustion attacks (DDoS) |
+| **Packet Length Mean** | Mathematical mean of packet sizes | Exposes abnormally small packets (control packets) vs. large payloads |
+| **Protocol** | Layer 4 Protocol identifier (TCP/UDP/ICMP)| Maps the transport layer vector used by the attacker |
+| **Source Port** | Client connection socket port | Identifies host application origins or spoofed source ports |
+| **Destination Port** | Targeted service port on victim | Determines targeted services (SSH, HTTP, Database) |
+
+---
+
+## 📂 Project Directory Structure
+
+```directory
 Advanced_IDS_Project/
 ├── dataset/
-│   └── CICIDS2017_sample.csv   # The synthesized network dataset
+│   └── CICIDS2017_sample.csv    # Synthesized realistic network flow data
 ├── model/
-│   ├── ids_model.pkl           # Trained classification model
-│   ├── scaler.pkl              # Feature scaler instance
-│   └── ...                     # Training graphs (Accuracy, Loss, Confusion Matrix)
+│   ├── ids_model.h5             # Serialized Deep Learning Model (TensorFlow/Keras)
+│   ├── ids_model.pkl            # Fallback Neural Network (Scikit-Learn MLP)
+│   ├── scaler.pkl               # Standardized feature scaler
+│   ├── label_mapping.pkl        # Numerical-to-Class index mapping
+│   ├── accuracy_plot.png        # Training accuracy curve
+│   ├── loss_plot.png            # Model training loss curve
+│   └── confusion_matrix.png     # Validation evaluation metrics
 ├── static/
-│   ├── style.css               # Styling
-│   └── script.js               # Frontend JavaScript
+│   ├── style.css                # Premium modern dark UI stylesheet
+│   └── script.js                # Asynchronous API telemetry handlers
 ├── templates/
-│   ├── index.html              # Landing Page
-│   ├── dashboard.html          # Traffic Simulation Interface
-│   └── result.html             # Analysis & Mitigation Output
-├── generate_data.py            # Script to generate sample data
-├── preprocess.py               # Data cleaning and scaling module
-├── train_model.py              # Model architecture and training script
-├── predict.py                  # Core inference logic
-├── mitigation.py               # Active response simulation
-├── app.py                      # Flask web server
-└── requirements.txt            # Project dependencies
+│   ├── index.html               # Abstract and dashboard entrance interface
+│   ├── dashboard.html           # Live SOC telemetry, graphs, and terminals
+│   ├── result.html              # Individual telemetry classification analysis
+│   └── batch_result.html        # Detailed forensic report for PCAP/CSV uploads
+├── app.py                       # Core Flask web server & route controllers
+├── generate_data.py             # Script to generate realistic synthetic telemetry
+├── preprocess.py                # Flow standardization and scaling module
+├── train_model.py               # NN compiler, optimizer, and trainer
+├── predict.py                   # Model loading and inference wrapper
+├── live_sniffer.py              # Scapy background socket polling thread
+├── mitigation.py                # Active response simulation module
+├── pcap_parser.py               # Low-level Scapy raw PCAP feature extractor
+└── requirements.txt             # Project library dependencies
 ```
 
-## Installation & Setup
+---
 
-1. **Clone or Navigate to the Directory**:
+## ⚙️ Installation & Workspace Setup
+
+### Prerequisites
+*   **Python 3.8 to 3.11** installed.
+*   *For Live Sniffing*: **Npcap** (Windows) or **libpcap** (Linux/Mac) must be installed to support raw packet capture via Scapy.
+    *   *Windows users*: Download Npcap from the official [Npcap website](https://npcap.com/).
+
+### Setup Commands
+1. **Navigate to the Project Directory**:
    ```bash
    cd Advanced_IDS_Project
    ```
 
-2. **Install Dependencies**:
+2. **Create and Activate a Virtual Environment** (Optional but Recommended):
+   ```bash
+   python -m venv venv
+   # Windows Activation:
+   venv\Scripts\activate
+   # Linux/Mac Activation:
+   source venv/bin/activate
+   ```
+
+3. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Generate the Dataset**:
-   This will synthesize a realistic network flow dataset.
-   ```bash
-   python generate_data.py
-   ```
+---
 
-4. **Train the Deep Learning Model**:
-   This script processes the data, builds the NN, trains it over epochs, and outputs analytical graphs in the `model/` folder.
-   ```bash
-   python train_model.py
-   ```
+## 🚀 Execution & Usage Guide
 
-5. **Launch the Web Dashboard**:
-   Start the local server.
-   ```bash
-   python app.py
-   ```
-   Open your browser and navigate to `http://localhost:5000`
+Follow these sequential steps to train the Deep Learning model and launch the interactive SOC interface:
 
-## Example Output
+### Step 1: Synthesize Network Flow Data
+Generate a local mock dataset modeling the telemetry metrics of the standard CICIDS2017 catalog:
+```bash
+python generate_data.py
+```
 
-**Prediction Result:**
-`Botnet Attack Detected`
+### Step 2: Train the Neural Network Core
+Train the model to identify anomalies. This script will pre-process the dataset, export the scaler, compile the model, and dump performance validation figures (accuracy, loss, and confusion matrix) directly in the `model/` subdirectory:
+```bash
+python train_model.py
+```
 
-**Confidence:**
-`96.4%`
+### Step 3: Run the SOC Dashboard Application
+Launch the Flask development server to view the interface locally:
+```bash
+python app.py
+```
+- Open your browser and navigate to: **`http://127.0.0.1:5000`**
 
-**Mitigation Action Taken:**
-`Blocked malicious IP address at Firewall. Generated High Priority Security Alert.`
+### Step 4: Interact & Test Threats
+- **Single Flow Simulation**: Input manual telemetry values into the dashboard to test individual classifications and read active firewalls responses.
+- **Batch Upload & Forensics**: Upload a packet capture (`.pcap`) or flow registry (`.csv`) to trigger automated victim identification, top targeted port listings, and Command & Control IP tracking.
+- **Live Interface Sniffing**: Toggle the Live Sniffer switch on the dashboard to trigger Scapy. The console will capture background packets circulating on your local machine, run them through the model, and print security decisions live onto the terminal screen.
 
 ---
-*Created as a Final Year Engineering Demonstration.*
+
+## 🛡️ Autonomous Response Playbooks (Mitigation)
+
+When the Deep Learning Core detects a threat, the framework automatically triggers the simulation of a corresponding security response policy:
+
+| Detected Threat Class | Assigned Defense Strategy | Active Remediation Log Actions |
+| :--- | :--- | :--- |
+| **Botnet Connection** | **C2 Socket Interdiction** | Identifies target IP, terminates local sockets, and adds IP to the outbound blackhole firewall rule list. |
+| **DDoS Attack** | **Volumetric Rate Limiting** | Triggers dynamic packet dropping, restricts bandwidth on the ingress interface, and logs source IPs to the quarantine zone. |
+| **PortScan Anomalies** | **Host Quarantine** | Temporarily isolates the requesting host machine from accessing subnet resources and drops incoming requests. |
+| **BENIGN / Normal** | **Continuous Audit** | Allows packets to pass freely and updates general dashboard network statistics. |
+
+---
+
+> [!TIP]
+> **Reducing False Positives in Live Environments**
+> To avoid false positives on background network noise (e.g. DNS lookups, multicast SSDP, or active web browsing over ports 80/443), the system incorporates a **dynamic validation filter** in the live packet sniffer module (`live_sniffer.py`) ensuring clean, high-fidelity security logs.
+
+---
+*Created as a Final Year Engineering Demonstration. Powered by Advanced Agentic AI Development.*
