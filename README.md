@@ -1,10 +1,14 @@
-# 🛡️ Advanced Deep Learning–Driven Intrusion Detection and Mitigation Framework
+# 🛡️ Advanced Deep Learning–Driven Intrusion Detection and Mitigation Framework for Botnet Attacks in 5G-Enabled Networks
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-DeepLearning-orange)
 ![Flask](https://img.shields.io/badge/Flask-WebApp-black)
 ![Scapy](https://img.shields.io/badge/Scapy-Packet_Sniffer-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
+
+> [!NOTE]
+> **🎓 Final Year Engineering Project**  
+> This repository contains the official design, implementation, and demonstration of the final year capstone project: **Advanced Deep Learning–Driven Intrusion Detection and Mitigation Framework for Botnet Attacks in 5G-Enabled Networks**.
 
 An **AI-powered Intrusion Detection System (IDS)** designed for **5G-enabled networks**. It uses a **Deep Learning Multi-Layer Perceptron (MLP)** neural network and **Scapy-powered socket hooking** to analyze network flow features, classify malicious traffic (such as Botnets, DDoS, and PortScans), and simulate real-time threat mitigation.
 
